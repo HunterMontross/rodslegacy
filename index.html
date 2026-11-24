@@ -103,37 +103,35 @@
         <div class="pay-grid">
           <div class="pay">
             <h3><span class="logo cash" aria-hidden="true">$</span> Cash App</h3>
-            <div class="payto">
-              <div><small>Send to</small><span class="num" data-pay-number></span></div>
-              <button class="btn btn-ghost btn-sm" type="button" data-copy>Copy number</button>
-            </div>
-            <ol>
-              <li>Open Cash App and tap <b>Pay</b>.</li>
-              <li>Enter the number above and the amount.</li>
-              <li>Add "Legacy Kutz" in the note.</li>
-            </ol>
-            <div class="actions">
-              <a class="btn btn-gold" href="https://cash.app/" target="_blank" rel="noopener">Open Cash App</a>
-            </div>
+            <fieldset class="amounts">
+              <legend>Choose an amount</legend>
+              <div class="chips">
+                <button type="button" class="chip" data-amt="5" aria-pressed="true">$5</button>
+                <button type="button" class="chip" data-amt="10" aria-pressed="false">$10</button>
+                <button type="button" class="chip" data-amt="25" aria-pressed="false">$25</button>
+                <button type="button" class="chip" data-amt="50" aria-pressed="false">$50</button>
+                <label class="chip custom"><span>$</span><input id="amt-custom" type="number" inputmode="decimal" min="1" step="1" placeholder="Other" aria-label="Other amount in dollars"></label>
+              </div>
+            </fieldset>
+            <a class="btn btn-gold btn-big" id="cash-go" href="https://cash.app/$honorRHaggard/5" target="_blank" rel="noopener">Give $5 with Cash App</a>
+            <p class="payline">Opens Cash App to <b>$honorRHaggard</b> (Carla Ross) with your amount filled in. You can change it before you send.</p>
           </div>
           <div class="pay">
             <h3><span class="logo zelle" aria-hidden="true">Z</span> Zelle</h3>
             <div class="payto">
-              <div><small>Send to</small><span class="num" data-pay-number></span></div>
-              <button class="btn btn-ghost btn-sm" type="button" data-copy>Copy number</button>
+              <div><small>Send to</small><span class="num email">inhonorofrodneyhaggard@gmail.com</span></div>
+              <button class="btn btn-ghost btn-sm" type="button" data-copy="inhonorofrodneyhaggard@gmail.com">Copy email</button>
             </div>
             <ol>
               <li>Open your bank's app and choose <b>Zelle</b>.</li>
-              <li>Enter the number above and the amount.</li>
+              <li>Paste the email above and enter your amount.</li>
               <li>Add "Legacy Kutz" in the memo.</li>
             </ol>
-            <div class="actions">
-              <a class="btn btn-gold" href="https://www.zellepay.com/get-started" target="_blank" rel="noopener">Find Zelle in your bank</a>
-            </div>
+            <p class="payline">Zelle lives inside your bank's app, so no website can open it for you. Copy the email, then send from your bank.</p>
           </div>
         </div>
         <p class="copied" role="status" aria-live="polite"></p>
-        <p class="note">Confirm the name shown in your app before you send. Questions about a gift? Call or text <a href="tel:+18102418162">810-241-8162</a>.</p>
+        <p class="note">Confirm the name shown in your app (Carla Ross) before you send. Questions about a gift? Call or text <a href="tel:+18102418162">810-241-8162</a>.</p>
       </div>
     </section>
 
@@ -178,14 +176,33 @@
   <div class="pole" aria-hidden="true"></div>
 
   <script>
-    // The one number donors send to (Cash App + Zelle), as printed on the flyer.
-    const PAY_NUMBER = "810-241-8162";
-    document.querySelectorAll("[data-pay-number]").forEach((el) => { el.textContent = PAY_NUMBER; });
+    // Cash App: cash.app/$tag/<amount> opens the pay screen with the amount filled in.
+    const CASHTAG = "$honorRHaggard";
+    const go = document.getElementById("cash-go");
+    const custom = document.getElementById("amt-custom");
+    const chips = document.querySelectorAll(".chip[data-amt]");
+    function setAmount(n) {
+      const amt = Math.max(1, Math.round(Number(n) || 0));
+      if (!amt) return;
+      go.href = "https://cash.app/" + CASHTAG + "/" + amt;
+      go.textContent = "Give $" + amt + " with Cash App";
+    }
+    chips.forEach((c) => c.addEventListener("click", () => {
+      chips.forEach((x) => x.setAttribute("aria-pressed", String(x === c)));
+      custom.value = "";
+      setAmount(c.dataset.amt);
+    }));
+    custom.addEventListener("input", () => {
+      if (!custom.value) return;
+      chips.forEach((x) => x.setAttribute("aria-pressed", "false"));
+      setAmount(custom.value);
+    });
     const status = document.querySelector(".copied");
     document.querySelectorAll("[data-copy]").forEach((btn) => {
       btn.addEventListener("click", async () => {
-        try { await navigator.clipboard.writeText(PAY_NUMBER); status.textContent = "Copied " + PAY_NUMBER; }
-        catch { status.textContent = "Number: " + PAY_NUMBER; }
+        const v = btn.dataset.copy;
+        try { await navigator.clipboard.writeText(v); status.textContent = "Copied " + v; }
+        catch { status.textContent = v; }
         setTimeout(() => { status.textContent = ""; }, 3000);
       });
     });
